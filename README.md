@@ -21,3 +21,8 @@ This solution processes half-hour traffic counter records and outputs:
 ## Running the Program
 ```bash
 python traffic_analysis.py sample.txt
+
+## Repository Link
+
+This project is also available on GitHub:  
+https://github.com/ShadiaBaroud/seek_assessment
