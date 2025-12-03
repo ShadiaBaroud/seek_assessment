@@ -1,6 +1,7 @@
 # SEEK AIPS Coding Challenge – Traffic Counter Analysis
 Author: Shadia Baroud  
 Date: 03 December 2025
+Tested with Python 3.10+
 
 ## Overview
 This solution processes half-hour traffic counter records and outputs:
