@@ -19,4 +19,4 @@ This solution processes half-hour traffic counter records and outputs:
 
 ## Running the Program
 ```bash
-python traffic_analysis.py input.txt
+python traffic_analysis.py sample.txt
