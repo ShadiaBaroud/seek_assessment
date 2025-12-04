@@ -56,7 +56,9 @@ The program requires Python 3.9+ and can be run from the command line:
 
 ```bash
 python traffic_analysis.py sample.txt
+---
 
+## Repository Link
 
-Repository Link
-This project is also available on GitHub: https://github.com/ShadiaBaroud/seek_assessment
+This project is also available on GitHub: 
+[https://github.com/ShadiaBaroud/seek_assessment](https://github.com/ShadiaBaroud/seek_assessment)
