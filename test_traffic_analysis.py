@@ -56,3 +56,42 @@ def test_min_1_5_hour_window():
     window = min_1_5_hour_window(records)
     # possible windows: [5+10+3=18], [10+3+20=33] -> first is minimal
     assert [r.count for r in window] == [5, 10, 3]
+
+def test_empty_records():
+    records = []
+    assert total_cars(records) == 0
+    assert cars_per_day(records) == {}
+    assert top_three_half_hours(records) == []
+    assert min_1_5_hour_window(records) == []
+
+def test_less_than_three_records():
+    records = [
+        make_record("2021-12-01T05:00:00", 5),
+        make_record("2021-12-01T05:30:00", 10),
+    ]
+
+    # total and per_day still valid
+    assert total_cars(records) == 15
+    per_day = cars_per_day(records)
+    assert list(per_day.values()) == [15]
+
+    # top3 returns what exists
+    top3 = top_three_half_hours(records)
+    assert [r.count for r in top3] == [10, 5]
+
+    # min window returns all records since we can't form 3
+    window = min_1_5_hour_window(records)
+    assert [r.count for r in window] == [5, 10]
+
+def test_multiple_days_per_day_aggregation():
+    records = [
+        make_record("2021-12-01T05:00:00", 5),
+        make_record("2021-12-01T05:30:00", 10),
+        make_record("2021-12-02T06:00:00", 3),
+        make_record("2021-12-02T06:30:00", 7),
+    ]
+    per_day = cars_per_day(records)
+    # 2021-12-01 -> 15, 2021-12-02 -> 10
+    assert per_day[records[0].timestamp.date()] == 15
+    assert per_day[records[2].timestamp.date()] == 10
+

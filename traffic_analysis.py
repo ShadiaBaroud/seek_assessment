@@ -82,6 +82,14 @@ def main(argv: List[str]) -> int:
     input_path = argv[1]
     records = parse_file(input_path)
 
+    if not records:
+        # No data case: print zeros or a clear message
+        #print(0)
+        # Optionally: you can print nothing else, or a note:
+        print("No records found in input file.")
+        return 0
+
+
     # 1) Total cars
     total = total_cars(records)
     print(total)

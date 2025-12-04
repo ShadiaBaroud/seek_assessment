@@ -1,7 +1,6 @@
 # SEEK AIPS Coding Challenge – Traffic Counter Analysis
 Author: Shadia Baroud  
 Date: 03 December 2025
-Tested with Python 3.10+
 
 ## Overview
 This solution processes half-hour traffic counter records and outputs:
@@ -17,6 +16,7 @@ This solution processes half-hour traffic counter records and outputs:
 - Top 3 half-hours are identified via descending sort by count.
 - The lowest 1.5-hour period is calculated using a sliding window over the original record order.
 - Code is kept intentionally simple, readable and maintainable.
+- Tested with Python 3.9+
 
 ## Running the Program
 ```bash
