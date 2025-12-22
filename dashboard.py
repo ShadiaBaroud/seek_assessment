@@ -6,7 +6,7 @@ import json
 import pandas as pd
 
 # Define the local API endpoint
-API_URL = "http://127.0.0.1:8000/analyze"
+API_URL = "http://api:8000/analyze"
 
 st.set_page_config(layout="wide", page_title="Traffic Analysis Dashboard")
 

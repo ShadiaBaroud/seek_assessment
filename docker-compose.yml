@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # The Backend API Service
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+
+  # The Frontend Dashboard Service
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    # Overwrite the default Dockerfile command to run Streamlit
+    command: streamlit run dashboard.py --server.address 0.0.0.0
+    depends_on:
+      - api
