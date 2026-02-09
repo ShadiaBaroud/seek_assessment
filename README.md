@@ -1,62 +1,205 @@
 # SEEK AIPS Coding Challenge – Traffic Counter Analysis
-Author: Shadia Baroud
-Date: 2025-12-03
+
+**Author:** Dr. Shadia Yahya Baroud  
+**Date:** 2025-12-03  
+
+---
 
 ## Overview
 
-This solution provides four key analytical outputs from the half-hour traffic counter data:
-1.  The total number of cars recorded (overall).
-2.  The number of cars per day (sorted chronologically).
-3.  The top three half-hour periods with the highest traffic.
-4.  The 1.5-hour window (three contiguous records) with the lowest total traffic.
+This project implements a robust analytical engine for processing **half-hourly traffic counter data**.  
+It computes a set of core metrics required for traffic analysis while ensuring **correctness, determinism, and production-readiness**.
 
-The solution is implemented in Python and developed to professional standards, prioritizing **correctness, robustness and performance.**
-
----
-
-## Key Design Decisions and Performance
-
-### 1. Guaranteed Correctness via Explicit Sorting (O(N log N))
-
-The core challenge for the lowest 1.5-hour window is to find the minimum sum of **three chronologically contiguous** records.
-* The `min_1_5_hour_window` function uses the high-performance **Sliding Window Technique** for $O(N)$ complexity.
-* **Crucial Fix:** This $O(N)$ algorithm depends entirely on the input list being sorted by time. To guarantee correctness regardless of the input file's original order, the `main` function explicitly enforces a chronological sort on all records once after parsing (`records.sort(key=lambda r: r.timestamp)`). This pays the necessary $O(N \log N)$ cost upfront to ensure the subsequent $O(N)$ analysis is mathematically sound.
-
-### 2. Low-Latency Top 3 Determination
-* The `top_three_half_hours` function uses a single sort operation, but implements a composite key for **deterministic tie-breaking**.
-* **Tie-Breaker Logic:** Records are sorted descending by `count`, and then ascending by `timestamp`. This ensures that in the event of equal car counts, the **earlier record wins the tie**, providing a stable and predictable output.
+The solution is implemented as a small, modular system consisting of:
+- a **FastAPI backend** for analysis
+- a **Streamlit frontend** for interactive exploration
+- a reusable **core analytics module**
 
 ---
 
-## Robustness and Professional Standards
+## Features & Metrics
 
-### 1. Graceful Error Handling (`parse_file`)
-The `parse_file` function is designed to be production-ready and resilient to real-world data issues:
-* It uses a robust `try...except` block to catch and handle **malformed lines** (e.g., incorrect field count, non-numeric car count, bad timestamp format).
-* **Error Reporting:** Malformed lines are skipped, and detailed warnings/errors are directed to **`sys.stderr`**. This keeps the program's required output (raw data) clean on `stdout` for downstream machine processing.
+The system computes the following metrics:
 
-### 2. Code Quality and Fluency
-* **Modern Python:** Leverages `@dataclass` for clear, boilerplate-free data modeling and uses extensive **type hinting** for improved static analysis and maintainability.
-* **Documentation:** All core functions include docstrings explaining purpose, input, and output. Critical logic (like the sorting key and the sliding window) is commented to explain the *why* behind the complexity.
+- **Total Car Count**  
+  The aggregate number of cars recorded across the entire dataset.
+
+- **Daily Traffic Totals**  
+  A chronological breakdown of total car counts per day.
+
+- **Top 3 Half-Hour Periods**  
+  The three individual 30-minute intervals with the highest traffic volume.
+
+- **Lowest 1.5-Hour Window**  
+  The contiguous 90-minute period (three consecutive records) with the lowest cumulative traffic.
+
+---
+
+## Architecture
+
+```
+.
+├── api.py                  # FastAPI service
+├── dashboard.py            # Streamlit UI
+├── traffic_analysis.py     # Core analytical logic
+├── test_traffic_analysis.py
+├── sample.txt              # Sample dataset
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Components
+
+### FastAPI Backend (`api.py`)
+- Exposes an `/analyze` endpoint
+- Accepts uploaded traffic data files
+- Returns structured JSON results
+- Maintains a clear separation between API handling and business logic
+
+### Streamlit Dashboard (`dashboard.py`)
+- Interactive web interface
+- Supports file uploads
+- Displays computed metrics and charts
+
+### Core Analytics Engine (`traffic_analysis.py`)
+- Responsible for file parsing and validation
+- Performs aggregations and sliding-window calculations
+- Implements deterministic tie-breaking logic
+
+---
+
+## Key Design Decisions
+
+### 1. Explicit Sorting for Correctness (O(N log N))
+
+Input files may not be ordered chronologically.  
+To guarantee correctness, all records are explicitly sorted by timestamp immediately after parsing:
+
+```python
+records.sort(key=lambda r: r.timestamp)
+```
+
+This ensures reliable downstream calculations, including sliding-window logic.
+
+---
+
+### 2. Efficient Sliding Window for Lowest Traffic Period
+
+The lowest 1.5-hour window is computed using a **sliding window technique**:
+- Linear time complexity after sorting (O(N))
+- Avoids redundant summation
+- Handles edge cases gracefully
+
+---
+
+### 3. Deterministic Tie-Breaking
+
+For the **Top 3 Half-Hour Periods**:
+- Records are sorted by:
+  1. Descending car count
+  2. Ascending timestamp (tie-breaker)
+
+This guarantees **stable and predictable output**, prioritizing earlier intervals when counts are equal.
+
+---
+
+## Running the Application
+
+### Option 1: Docker (Recommended)
+
+Run the full stack (API + Dashboard):
+
+```bash
+docker-compose up --build
+```
+
+- Streamlit Dashboard: http://localhost:8501  
+- API Documentation (Swagger): http://localhost:8000/docs  
+
+---
+
+### Option 2: Local Execution
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the API:
+
+```bash
+uvicorn api:app --reload
+```
+
+Start the dashboard:
+
+```bash
+streamlit run dashboard.py
+```
+
+---
+
+## CLI Usage
+
+The analytics engine can also be run directly:
+
+```bash
+python traffic_analysis.py sample.txt
+```
 
 ---
 
 ## Testing
 
-The solution is accompanied by a comprehensive `test_traffic_analysis.py` file using `pytest` that covers:
-* Basic correctness for all four analyses.
-* **Edge Cases:** Empty files and records lists shorter than 3.
-* **Critical Logic Validation:** Dedicated tests to prove the correctness of the **Top 3 tie-breaker** and to validate the failure-mode of the sliding window on unsorted data, justifying the fix in `main`.
+- Automated tests are implemented using **pytest**
+- Coverage includes:
+  - Core metric calculations
+  - Sliding window logic
+  - Tie-breaking behavior
+  - Edge cases (e.g. empty or minimal datasets)
+
+Run tests:
+
+```bash
+pytest
+```
 
 ---
 
-## Running the Program
+## Error Handling & Robustness
 
-The program requires Python 3.9+ and can be run from the command line:
+- Malformed input lines are skipped during parsing
+- Parsing errors are logged to `stderr`
+- Valid records continue to be processed without failing the entire run
+- Output remains clean and structured for downstream usage
 
-```bash
-python traffic_analysis.py sample.txt
-```
+---
+
+## Trade-offs & Future Improvements
+
+- Support for **streaming or very large datasets**
+- Persistent storage for results (e.g. Redis or PostgreSQL)
+- API authentication and rate limiting
+- Structured logging and metrics (e.g. Prometheus)
+- Deployment to a managed cloud environment (AWS ECS / EKS)
+
+---
+
+## Summary
+
+This solution prioritizes:
+- **Correctness over assumptions**
+- **Deterministic behavior**
+- **Clean separation of concerns**
+- **Production-oriented engineering practices**
+
+It is designed to be easy to run, test, and extend, while remaining efficient and predictable.
+
 ---
 
 ## Repository Link
