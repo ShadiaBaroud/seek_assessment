@@ -39,15 +39,18 @@ The system computes the following metrics:
 
 ```
 .
+.
 ├── api.py                  # FastAPI service
+├── schemas.py              # Pydantic schemas
 ├── dashboard.py            # Streamlit UI
 ├── traffic_analysis.py     # Core analytical logic
 ├── test_traffic_analysis.py
-├── sample.txt              # Sample dataset
+├── sample.txt
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
+
 ```
 
 ---
